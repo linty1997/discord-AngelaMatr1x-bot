@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "discord-angelamatr1x-bot"
+version = "0.1.0"
+description = ""
+authors = ["Dylan <40823034+linty1997@users.noreply.github.com>"]
+readme = "README.md"
+packages = [{include = "discord_angelamatr1x_bot"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+py-cord = "^2.4.1"
+alembic = "^1.11.1"
+pymysql = "^1.1.0"
+mysqlclient = "^2.2.0"
+python-dotenv = "^1.0.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
