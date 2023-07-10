@@ -1,6 +1,7 @@
 from discord.commands import slash_command, Option, OptionChoice
 from discord.ext import commands
 from components.buttons import LeaderBoardView, CheckInView
+from components.embeds import FractionEmbed
 import discord
 
 from core.sql import UserDB
@@ -25,12 +26,13 @@ class Fraction(commands.Cog):
         await channel.send(view=CheckInView())
         await ctx.send_followup("Daily check-in 設置完成", delete_after=5)
 
-    @slash_command(description="Check my FIRE Sparks.")
+    @slash_command(description="Check Total FIRE Sparks.")
     async def check_points(self, ctx, user: discord.Member = None):
         await ctx.defer(ephemeral=True)
         user_id = user.id if user else ctx.user.id
         points = await UserDB(ctx).get_user_fractions(user_id)
-        await ctx.send_followup(f"FIRE Sparks: `{points}`")
+        embed = await FractionEmbed(ctx).check_points(points)
+        await ctx.send_followup(embed=embed)
 
     @slash_command(description="Add user FIRE Sparks.")
     @commands.has_permissions(administrator=True)

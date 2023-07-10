@@ -1,5 +1,6 @@
 import discord
 from core.sql import UserDB
+from components.embeds import FractionEmbed
 
 
 # class LeaderBoardView(discord.ui.View):  # TODO: 暫不弄網頁, 用 discord ui 代替
@@ -64,29 +65,32 @@ class LeaderBoardView(discord.ui.View):  # TODO: Leader board button
         self.add_item(self.next_button)
 
         self.page = 1
-        await interaction.followup.send(embed=self.create_embed(self.val), view=self)
+        embed = await FractionEmbed(interaction).leader_board(self.pages, self.page, self.val)
+        await interaction.followup.send(embed=embed, view=self)
 
     async def next_page(self, interaction: discord.Interaction):
         if self.page != len(self.pages):
             self.page += 1
-            await interaction.response.edit_message(embed=self.create_embed(self.val), view=self)
+            embed = await FractionEmbed(interaction).leader_board(self.pages, self.page, self.val)
+            await interaction.response.edit_message(embed=embed, view=self)
 
     async def previous_page(self, interaction: discord.Interaction):
         if self.page > 1:
             self.page -= 1
-            await interaction.response.edit_message(embed=self.create_embed(self.val), view=self)
+            embed = await FractionEmbed(interaction).leader_board(self.pages, self.page, self.val)
+            await interaction.response.edit_message(embed=embed, view=self)
 
-    def create_embed(self, val):
-        embed = discord.Embed(title="Leaderboard")
-
-        for index, item in enumerate(self.pages[self.page - 1], start=(self.page - 1) * 10 + 1):
-            embed.add_field(name=f"No.{index}",
-                            value=f"{item.name}: {item.fraction if val == 'fraction' else item.old_fraction} ",
-                            inline=False)
-
-        embed.set_footer(text=f"Page {self.page}/{len(self.pages)}")
-
-        return embed
+    # def create_embed(self, val):
+    #     embed = discord.Embed(title="Leaderboard")
+    #
+    #     for index, item in enumerate(self.pages[self.page - 1], start=(self.page - 1) * 10 + 1):
+    #         embed.add_field(name=f"No.{index}",
+    #                         value=f"{item.name}: {item.fraction if val == 'fraction' else item.old_fraction} ",
+    #                         inline=False)
+    #
+    #     embed.set_footer(text=f"Page {self.page}/{len(self.pages)}")
+    #
+    #     return embed
 
 
 class CheckInView(discord.ui.View):  # TODO: Check-in button
@@ -102,5 +106,6 @@ class CheckInView(discord.ui.View):  # TODO: Check-in button
     async def button_callback(self, interaction):
         await interaction.response.defer(ephemeral=True, invisible=False)
         user_db = UserDB(interaction)
-        message = await user_db.update_user_sign_in(interaction.user)
-        await interaction.followup.send(message)
+        message, points, total_points = await user_db.update_user_sign_in(interaction.user)
+        embed = await FractionEmbed(interaction).check_in(message, points, total_points)
+        await interaction.followup.send(embed=embed)

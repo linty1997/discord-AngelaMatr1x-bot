@@ -71,9 +71,9 @@ class UserDB(BaseDB):
         yesterday = self.now_time.date() - timedelta(days=1)
 
         if user is None:
-            return 'Unknown error occurred, failed to create user.'
+            return 'Unknown error occurred, failed to create user.', 0, "Null"
         if user.last_sign_in is not None and user.last_sign_in.date() == self.now_time.date():
-            return 'You have already checked in today.'
+            return 'You have already checked in today.', 0, user.fraction
         if user.last_sign_in is None or user.last_sign_in is not None and user.last_sign_in and user.last_sign_in.date() != yesterday:
             user.consecutive_sign_in = 1
         else:
@@ -82,7 +82,7 @@ class UserDB(BaseDB):
         user.last_sign_in = self.now_time
         self.db.commit()
         await LogDB().add_log(self.user.id, event='Check-in')  # TODO: 紀錄簽到事件
-        return f'Daily check-in completed. Get {self.check_in_fraction} FIRE Sparks.'
+        return f'Daily check-in completed.', self.check_in_fraction, user.fraction
 
     async def settle_accounts(self, days, award):
         users = await self.get_users()
